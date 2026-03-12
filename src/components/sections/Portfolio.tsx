@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowUpRight, X, Maximize2, Calendar, Building, User, Ruler } from 'lucide-react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogTrigger,
-  DialogClose
-} from "@/components/ui/dialog";
+import { MapPin, Maximize2 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import ProjectDetail from './portfolio/ProjectDetail';
 
 const categories = ['All', 'Commercial', 'Residential', 'Infrastructure', 'Industrial', 'Renovation'];
 
@@ -101,6 +93,20 @@ const Portfolio = () => {
 
   const handleProjectClick = (project: typeof projects[0]) => {
     setSelectedProject(project);
+  };
+
+  const handleNext = () => {
+    if (!selectedProject) return;
+    const currentIndex = projects.findIndex(p => p.id === selectedProject.id);
+    const nextIndex = (currentIndex + 1) % projects.length;
+    setSelectedProject(projects[nextIndex]);
+  };
+
+  const handlePrev = () => {
+    if (!selectedProject) return;
+    const currentIndex = projects.findIndex(p => p.id === selectedProject.id);
+    const prevIndex = (currentIndex - 1 + projects.length) % projects.length;
+    setSelectedProject(projects[prevIndex]);
   };
 
   return (
@@ -196,91 +202,13 @@ const Portfolio = () => {
       </div>
 
       {/* Project Detail Modal */}
-      <Dialog open={!!selectedProject} onOpenChange={(open) => !open && setSelectedProject(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-none rounded-none">
-          {selectedProject && (
-            <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-y-auto md:overflow-hidden">
-              <div className="w-full md:w-1/2 h-[300px] md:h-auto relative">
-                <img 
-                  src={selectedProject.image} 
-                  alt={selectedProject.title} 
-                  className="w-full h-full object-cover"
-                />
-                <Badge className="absolute top-6 left-6 bg-yellow-400 text-zinc-900 font-black uppercase rounded-none px-4 py-2 text-sm border-none">
-                  {selectedProject.category}
-                </Badge>
-              </div>
-              <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-zinc-50 relative">
-                <DialogClose className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-zinc-900 transition-colors">
-                  <X className="w-6 h-6" />
-                </DialogClose>
-                
-                <DialogHeader className="mb-8 p-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="h-[1px] w-8 bg-yellow-400" />
-                    <span className="text-yellow-600 font-bold uppercase tracking-[0.2em] text-xs">Project Details</span>
-                  </div>
-                  <DialogTitle className="text-4xl font-black text-zinc-900 uppercase italic leading-tight">
-                    {selectedProject.title}
-                  </DialogTitle>
-                  <div className="flex items-center gap-2 text-zinc-500 mt-2 font-medium">
-                    <MapPin className="w-4 h-4" />
-                    {selectedProject.location}
-                  </div>
-                </DialogHeader>
-
-                <div className="grid grid-cols-2 gap-6 mb-8">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-yellow-500 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Year</p>
-                      <p className="font-bold text-zinc-800">{selectedProject.year}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Ruler className="w-5 h-5 text-yellow-500 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Area</p>
-                      <p className="font-bold text-zinc-800">{selectedProject.area}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 text-yellow-500 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Client</p>
-                      <p className="font-bold text-zinc-800">{selectedProject.client}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Building className="w-5 h-5 text-yellow-500 mt-1" />
-                    <div>
-                      <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Sector</p>
-                      <p className="font-bold text-zinc-800">{selectedProject.category}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <DialogDescription className="text-zinc-600 leading-relaxed mb-8">
-                  {selectedProject.description}
-                </DialogDescription>
-
-                <button 
-                  onClick={() => {
-                    toast.success("Requesting more details...", {
-                      description: `Our team will send you the full portfolio for ${selectedProject.title}.`
-                    });
-                    setSelectedProject(null);
-                  }}
-                  className="w-full bg-zinc-900 text-white py-4 px-6 font-black uppercase tracking-widest hover:bg-yellow-400 hover:text-zinc-900 transition-all group flex items-center justify-center gap-2"
-                >
-                  Request Full Portfolio
-                  <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ProjectDetail 
+        project={selectedProject} 
+        isOpen={!!selectedProject} 
+        onClose={() => setSelectedProject(null)} 
+        onNext={handleNext}
+        onPrev={handlePrev}
+      />
     </section>
   );
 };
